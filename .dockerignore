@@ -3,3 +3,4 @@
 .vscode
 *.iml
 README.md
+.env
