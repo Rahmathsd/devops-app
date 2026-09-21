@@ -25,3 +25,6 @@ jobs:
 
       - name: Build and test
         run: ./mvnw clean verify
+
+      - name: Build Docker image
+        run: docker build -t devops-app:${{ github.sha }} .
