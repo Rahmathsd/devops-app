@@ -28,3 +28,35 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t devops-app:${{ github.sha }} .
+
+      - name: Start application and MySQL
+        env:
+          APP_IMAGE_TAG: ${{ github.sha }}
+        run: |
+          echo "MYSQL_PASSWORD=ci_password" > .env
+          echo "MYSQL_ROOT_PASSWORD=ci_root_password" >> .env
+          docker compose up -d
+
+      - name: Check running containers
+        run: docker compose ps
+
+      - name: Test application health
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://localhost:8080/health; then
+              exit 0
+            fi
+            echo "Application not ready yet..."
+            sleep 2
+          done
+          echo "Application failed to become ready"
+          docker compose logs
+          exit 1
+
+      - name: Test application API
+        run: |
+          curl -fsS http://localhost:8080/api/users
+
+      - name: Stop containers
+        if: always()
+        run: docker compose down -v

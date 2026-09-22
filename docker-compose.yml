@@ -15,7 +15,7 @@ services:
       retries: 10
 
   app:
-    image: devops-app:1.0
+    image: devops-app:${APP_IMAGE_TAG:-1.0}
     ports:
       - "8080:8080"
     environment:
