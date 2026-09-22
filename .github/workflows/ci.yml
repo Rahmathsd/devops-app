@@ -12,12 +12,22 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+      id-token: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: arn:aws:iam::604275788475:role/GitHubActionsECRRole
+          aws-region: us-east-1
+
       - name: Set up Java 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -57,6 +67,17 @@ jobs:
         run: |
           curl -fsS http://localhost:8080/api/users
 
+      - name: Login to Amazon ECR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          aws ecr get-login-password --region us-east-1 |
+          docker login --username AWS --password-stdin 604275788475.dkr.ecr.us-east-1.amazonaws.com
+
+      - name: Push Docker image to ECR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          docker tag devops-app:${{ github.sha }} 604275788475.dkr.ecr.us-east-1.amazonaws.com/devops-app:${{ github.sha }}
+          docker push 604275788475.dkr.ecr.us-east-1.amazonaws.com/devops-app:${{ github.sha }}
       - name: Stop containers
         if: always()
         run: docker compose down -v
