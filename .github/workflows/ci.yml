@@ -69,13 +69,13 @@ jobs:
           curl -fsS http://localhost:8080/api/users
 
       - name: Login to Amazon ECR
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         run: |
           aws ecr get-login-password --region us-east-1 |
           docker login --username AWS --password-stdin 604275788475.dkr.ecr.us-east-1.amazonaws.com
 
       - name: Push Docker image to ECR
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         run: |
           docker tag devops-app:${{ github.sha }} 604275788475.dkr.ecr.us-east-1.amazonaws.com/devops-app:${{ github.sha }}
           docker push 604275788475.dkr.ecr.us-east-1.amazonaws.com/devops-app:${{ github.sha }}
@@ -84,7 +84,7 @@ jobs:
         run: docker compose down -v
 
       - name: Test SSM connection
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         run: |
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "i-0ded0f957ec08989b" \
