@@ -32,3 +32,10 @@ build/
 ### VS Code ###
 .vscode/
 .env
+
+### Terraform ###
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
