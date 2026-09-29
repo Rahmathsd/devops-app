@@ -4,3 +4,5 @@
 <!-- SSM permission verified -->
 
 <!-- SSM permission verified -->
+
+<!-- Verify SSM command result permissions -->
