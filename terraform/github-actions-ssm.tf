@@ -14,9 +14,19 @@ resource "aws_iam_role_policy" "github_actions_ssm" {
         ]
 
         Resource = [
-          "arn:aws:ssm:us-east-1:604275788475:document/AWS-RunShellScript",
+          "arn:aws:ssm:us-east-1::document/AWS-RunShellScript",
           "arn:aws:ec2:us-east-1:604275788475:instance/i-0ded0f957ec08989b"
         ]
+      },
+
+      {
+        Effect = "Allow"
+
+        Action = [
+          "ssm:GetCommandInvocation"
+        ]
+
+        Resource = "*"
       }
     ]
   })

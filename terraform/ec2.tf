@@ -1,9 +1,9 @@
-data "aws_ssm_parameter" "amazon_linux" {
-  name = "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
+variable "amazon_linux_ami" {
+  default = "ami-0fef201115eefe936"
 }
 
 resource "aws_instance" "app" {
-  ami                    = data.aws_ssm_parameter.amazon_linux.value
+  ami                    = var.amazon_linux_ami
   instance_type          = "t3.small"
   subnet_id              = aws_subnet.public_1.id
   vpc_security_group_ids = [aws_security_group.app.id]
