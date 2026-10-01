@@ -87,10 +87,12 @@ jobs:
       - name: Deploy to EC2
         if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         run: |
+          DEPLOY_SCRIPT=$(base64 -w 0 scripts/deploy.sh)
+
           COMMAND_ID=$(aws ssm send-command \
             --instance-ids "i-0ded0f957ec08989b" \
             --document-name "AWS-RunShellScript" \
-            --parameters 'commands=["/home/ec2-user/deploy.sh ${{ github.sha }}"]' \
+            --parameters "commands=[\"echo '$DEPLOY_SCRIPT' | base64 -d > /home/ec2-user/deploy.sh\", \"chmod +x /home/ec2-user/deploy.sh\", \"/home/ec2-user/deploy.sh ${{ github.sha }}\"]" \
             --region us-east-1 \
             --query "Command.CommandId" \
             --output text)
