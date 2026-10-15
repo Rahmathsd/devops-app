@@ -1,0 +1,39 @@
+---
+- name: Configure DevOps application server
+  hosts: app
+  become: true
+  gather_facts: true
+
+  tasks:
+
+    - name: Ensure Docker is installed
+      ansible.builtin.dnf:
+        name: docker
+        state: present
+
+    - name: Ensure Docker service is enabled and running
+      ansible.builtin.systemd:
+        name: docker
+        enabled: true
+        state: started
+
+    - name: Ensure application Docker network exists
+      community.docker.docker_network:
+        name: devops-network
+        state: present
+
+    - name: Ensure MySQL data volume exists
+      community.docker.docker_volume:
+        name: mysql_data
+        state: present
+
+    - name: Ensure MySQL container is running
+      community.docker.docker_container:
+        name: mysql
+        image: mysql:8.0
+        state: started
+        restart_policy: unless-stopped
+        networks:
+          - name: devops-network
+        volumes:
+          - mysql_data:/var/lib/mysql
